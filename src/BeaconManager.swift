@@ -213,7 +213,7 @@ public class BeaconManager: NSObject, CLLocationManagerDelegate, CBPeripheralMan
 	//MARK: CBPeripheralManager Delegate
 	
 	@objc public func peripheralManagerDidUpdateState(peripheral: CBPeripheralManager) {
-		if peripheral.state == CBPeripheralManagerState.PoweredOn {
+		if peripheral.state == .PoweredOn {
 			self.broadcastedBeacons.forEach({ beacon in
 				peripheral.startAdvertising(beacon.dataToAdvertise())
 			})
