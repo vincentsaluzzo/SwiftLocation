@@ -41,6 +41,9 @@ public class LocationManager: NSObject, CLLocationManagerDelegate {
 	/// You can specify a valid Google API Key if you want to use Google geocoding services without a strict quota
 	public var googleAPIKey: String?
 	
+	/// You can set a Pro key for the ip-api.com service in case of a commercial use or simple wanting better results.
+	public var ipAPIKey: String?
+	
 		/// A Boolean value indicating whether the app wants to receive location updates when suspended. By default it's false.
 		/// See .allowsBackgroundLocationUpdates of CLLocationManager for a detailed description of this var.
 	public var allowsBackgroundEvents: Bool = false {
@@ -309,7 +312,16 @@ public class LocationManager: NSObject, CLLocationManagerDelegate {
 	//MARK: [Private Methods] Manage Requests
 	
 	private func getLocationViaIPScan(timeout: NSTimeInterval?, onSuccess:LocationHandlerSuccess, onError: LocationHandlerError) -> Request {
-		let URLRequest = NSURLRequest(URL: NSURL(string: "http://ip-api.com/json")!, cachePolicy: .ReloadIgnoringLocalAndRemoteCacheData, timeoutInterval: timeout ?? DefaultTimeout)
+		var urlPrefix = "http://"
+		var keyParam = ""
+		
+		if let key = ipAPIKey {
+			urlPrefix = "https://pro."
+			keyParam = "&key=\(key)"
+		}
+		let urlString = "\(urlPrefix)ip-api.com/json?fields=lat,lon,status,country,countryCode,zip\(keyParam)"
+		let URLRequest = NSURLRequest(URL: NSURL(string: urlString)!, cachePolicy: .ReloadIgnoringLocalAndRemoteCacheData, timeoutInterval: timeout ?? DefaultTimeout)
+		
 		let sessionConfig = NSURLSessionConfiguration.defaultSessionConfiguration()
 		let session = NSURLSession(configuration: sessionConfig)
 		let task = session.dataTaskWithRequest(URLRequest) { (data, response, error) in
@@ -416,6 +428,18 @@ public class LocationManager: NSObject, CLLocationManagerDelegate {
 		self.headingObservers.forEach({ $0.rState = state})
 	}
 	
+	private func dispatchAuthorizationDidChange(newStatus: CLAuthorizationStatus) {
+		func _dispatch(request: Request) {
+			if let request = request as? AuthorizedRequest {
+				request.onAuthorizationDidChange?(newStatus)
+			}
+		}
+		
+		self.visitsObservers.forEach({ _dispatch($0) })
+		self.locationObservers.forEach({ _dispatch($0) })
+		self.headingObservers.forEach({ _dispatch($0) })
+	}
+	
 	internal func updateLocationUpdateService() {
 		let enabledObservers = locationObservers.filter({ $0.rState.isRunning == true })
 		if enabledObservers.count == 0 {
@@ -480,6 +504,7 @@ public class LocationManager: NSObject, CLLocationManagerDelegate {
 		self.stopAllLocationRequests(withError: nil, pause: true)
 		return true
 	}
+
 	
 	//MARK: [Private Methods] Location Manager Delegate
 	
@@ -493,6 +518,8 @@ public class LocationManager: NSObject, CLLocationManagerDelegate {
 		default:
 			break
 		}
+		// Dispatch any request which listen for authorization changes
+		self.dispatchAuthorizationDidChange(status)
 	}
 	
 	@objc public func locationManager(manager: CLLocationManager, didVisit visit: CLVisit) {
