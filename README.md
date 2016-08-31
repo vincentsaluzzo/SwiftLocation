@@ -76,6 +76,7 @@ Documentation
 * **[Monitor Geographic Regions](#monitorGepRegSample)**
 * **[Monitor Beacons & Beacon Families](#monitoriBeacon)**
 * **[Act like a Beacon](#actLikeiBeacon)**
+* **[Observe CLLocationManager Auth Events](#observeCLLocationManagerEvents)**
 
 <a name="monitoruserlocation" />
 ##  Monitor Current User Location (one shot, continous delivery etc.)
@@ -312,12 +313,32 @@ let request = Beacons.advertise(beaconName: "name", UUID: proximity, major: majo
 Use ```stop()``` on ```request``` to stop beacon advertise.
 
 ([Documentation ↑](#documentation))
+
+## Observe CLLocationManager Auth Events
+<a name="observeCLLocationManagerEvents" />
+You can observe CLLocationManager authorization changes events by subscribing the ```.onAuthorizationDidChange()``` method.
+That's an example:
+
+```swift
+var request = Location.getLocation(withAccuracy: .City, frequency: .Continuous, timeout: nil, onSuccess: { (loc) in
+	// location update
+}) { (last, err) in
+	// error
+}
+
+request.onAuthorizationDidChange = { newStatus in
+	print("New status \(newStatus)")
+}
+```
+([Documentation ↑](#documentation))
+
 Changes
 -------
 
 ### Version 1.0.4 (2016/08/31):
 - Added support for ip-api Pro API Key
 - Added documentation reference for ip-api limit usage, pro version and app transport security on iOS 9 or later.
+- Each ```Request``` implement ```.onAuthorizationDidChange()``` so you can observe for CLLocationManager auth events.
 
 ### Version 1.0.3 (2016/08/26):
 - [FIX #61](https://github.com/malcommac/SwiftLocation/issues/61) Fixed several issues with location services ```start()``` func.
