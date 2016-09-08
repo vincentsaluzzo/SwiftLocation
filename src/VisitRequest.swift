@@ -92,6 +92,10 @@ public class VisitRequest: Request {
 		}
 	}
 	
+	public func cancel() {
+		self.cancel()
+	}
+	
 	public func pause() {
 		if self.rState.isRunning {
 			self.rState = .Paused

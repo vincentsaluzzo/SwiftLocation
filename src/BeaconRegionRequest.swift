@@ -62,6 +62,10 @@ public class BeaconRegionRequest: NSObject, Request {
 		Beacons.remove(request: self, error: error)
 	}
 	
+	public func cancel() {
+		self.cancel()
+	}
+	
 	public func pause() {
 		if Beacons.remove(request: self) == true {
 			self.rState = .Paused

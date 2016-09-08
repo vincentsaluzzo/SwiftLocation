@@ -62,6 +62,10 @@ public class BeaconAdvertiseRequest: NSObject, Request {
 		}
 	}
 	
+	public func cancel() {
+		self.cancel()
+	}
+	
 	public func pause() {
 		if self.rState.isRunning == true {
 			Beacons.stopAdvertise(self.name, error: nil)
