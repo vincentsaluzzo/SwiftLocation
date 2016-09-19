@@ -160,7 +160,7 @@ public class LocationRequest: Request  {
 	}
 	
 	public func cancel() {
-		self.cancel()
+		self.cancel(nil)
 	}
 	
 	/**

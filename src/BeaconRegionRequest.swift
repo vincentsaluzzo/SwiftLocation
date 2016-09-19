@@ -63,7 +63,7 @@ public class BeaconRegionRequest: NSObject, Request {
 	}
 	
 	public func cancel() {
-		self.cancel()
+		self.cancel(nil)
 	}
 	
 	public func pause() {

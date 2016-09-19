@@ -142,7 +142,7 @@ public class HeadingRequest: Request {
 	}
 	
 	public func cancel() {
-		self.cancel()
+		self.cancel(nil)
 	}
 	
 	//MARK: - Private
